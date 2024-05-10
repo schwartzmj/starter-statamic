@@ -20,7 +20,7 @@ export default {
         extend: {
             colors: {
                 primary: {
-                    ...colors.orange,
+                    ...colors.amber,
                 },
                 complimentary: {
                     ...colors.sky,
