@@ -1,0 +1,37 @@
+{
+    "name": "schwartzmj/statamic-img",
+    "autoload": {
+        "psr-4": {
+            "Schwartzmj\\StatamicImg\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Schwartzmj\\StatamicImg\\Tests\\": "tests"
+        }
+    },
+    "require": {
+        "statamic/cms": "^5.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
+    },
+    "extra": {
+        "statamic": {
+            "name": "Statamic Img",
+            "description": "Statamic Img addon"
+        },
+        "laravel": {
+            "providers": [
+                "Schwartzmj\\StatamicImg\\ServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

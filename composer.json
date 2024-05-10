@@ -12,6 +12,7 @@
         "php": "^8.2",
         "laravel/framework": "^11",
         "laravel/tinker": "^2.9",
+        "schwartzmj/statamic-img": "dev-main",
         "spatie/laravel-ray": "^1.36",
         "statamic/cms": "^5.0",
         "symfony/http-client": "^7.0",
@@ -75,5 +76,11 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "addons/schwartzmj/statamic-img"
+        }
+    ]
 }
