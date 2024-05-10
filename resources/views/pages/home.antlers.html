@@ -96,9 +96,10 @@
 <section class="container-p">
     <div class="relative" x-data="test_img">
         {{ img src="/site/img/northern-lights.jpg" class="hover:scale-105 transition duration-150 ease-in-out cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" }}
-        <div class="absolute left-0 top-0 rounded p-4 text-white shadow-md">
-            <p x-text="coords"></p>
-        </div>
+        <p
+            x-text="coords"
+            class="absolute left-0 top-0 rounded p-4 text-white shadow-md"
+        ></p>
     </div>
     <script>
         document.addEventListener("alpine:init", () => {
