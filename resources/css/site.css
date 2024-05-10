@@ -19,11 +19,11 @@ html {
 @layer components {
     /* Container is centered by default and also includes default padding in the tailwing.config.js file. */
     .container-p {
-        @apply container py-20 lg:py-32;
+        @apply container py-16 xl:py-32;
     }
 
     .container-m {
-        @apply container my-20 lg:my-32;
+        @apply container my-16 xl:my-32;
     }
 
     .base-btn {
@@ -50,5 +50,8 @@ html {
 @layer utilities {
     .btn-sm {
         @apply px-3 py-2;
+    }
+    .container-gap {
+        @apply gap-8 xl:gap-16;
     }
 }
