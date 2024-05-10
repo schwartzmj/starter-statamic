@@ -94,5 +94,24 @@
 </section>
 
 <section class="container-p">
-    {{ img src="/site/img/northern-lights.jpg" @click="alert('Hello world!')" x-data="" class="hover:scale-105 transition duration-150 ease-in-out cursor-pointer" }}
+    <div class="relative" x-data="test_img">
+        {{ img src="/site/img/northern-lights.jpg" class="hover:scale-105 transition duration-150 ease-in-out cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" }}
+        <div class="absolute left-0 top-0 rounded p-4 text-white shadow-md">
+            <p x-text="coords"></p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("alpine:init", () => {
+            Alpine.data("test_img", () => ({
+                coords: "",
+                init() {},
+                onClick() {
+                    alert("Hello world!");
+                },
+                onMouseover(event) {
+                    this.coords = event.clientX + ", " + event.clientY;
+                },
+            }));
+        });
+    </script>
 </section>
