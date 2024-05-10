@@ -18,6 +18,9 @@ html {
 
 @layer components {
     /* Container is centered by default and also includes default padding in the tailwing.config.js file. */
+    /* .container {
+        @apply max-w-7xl;
+    } */
     .container-p {
         @apply container py-16 xl:py-32;
     }
