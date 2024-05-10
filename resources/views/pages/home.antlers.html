@@ -7,6 +7,7 @@
     </p>
 </div> -->
 
+{{#
 <section class="container-p container-gap grid grid-cols-1 xl:grid-cols-2">
     <div>
         <h2 class="mt-4 text-5xl font-normal">Lorem Ipsum</h2>
@@ -50,7 +51,8 @@
             </p>
         </div>
     </div>
-    {{ img src="/site/img/northern-lights.jpg" class="order-last rounded shadow-md shadow-stone-800/50 xl:order-first" }}
+    {{ img src="/site/img/northern-lights.jpg" class="order-last rounded shadow-md shadow-stone-800/50 xl:order-first"
+    }}
 </section>
 <section class="container-p container-gap grid grid-cols-1 xl:grid-cols-2">
     <div>
@@ -77,10 +79,12 @@
     </div>
     {{ img src="/site/img/northern-lights.jpg" class="rounded shadow-md shadow-stone-800/50" }}
 </section>
+#}}
 
 <section class="container-p">
     <div class="relative" x-data="test_img">
-        {{ img src="/site/img/northern-lights.jpg" class="hover:scale-105 transition duration-150 ease-in-out cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" }}
+        {{ img src="/site/img/northern-lights.jpg" class="hover:scale-105 transition duration-150 ease-in-out
+        cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" size="50" }}
         <p
             x-text="coords"
             class="absolute left-0 top-0 rounded p-4 text-white shadow-md"
@@ -90,13 +94,14 @@
         document.addEventListener("alpine:init", () => {
             Alpine.data("test_img", () => ({
                 coords: "",
-                init() {},
+                init() {
+                },
                 onClick() {
                     alert("Hello world!");
                 },
                 onMouseover(event) {
                     this.coords = event.clientX + ", " + event.clientY;
-                },
+                }
             }));
         });
     </script>
