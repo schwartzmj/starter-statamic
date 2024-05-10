@@ -1,4 +1,5 @@
-data: {  }
+data:
+  alt: 'Northern Lights'
 size: 460975
 last_modified: 1715314270
 width: 1920
