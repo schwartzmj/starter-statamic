@@ -1,0 +1,4 @@
+name: 'Admin User'
+super: true
+id: ef873092-29a8-471f-8599-606a64c10e13
+password_hash: $2y$12$biccJRThpQ/wQa1teVgTnuXq/l8JGBOUE4IvDMHs7LCUlbKe7UEmq

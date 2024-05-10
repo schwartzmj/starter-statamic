@@ -1,0 +1,30 @@
+export_paths:
+  - content
+  - config/filesystems.php
+  - config/mail.php
+  - config/statamic/cp.php
+  - config/statamic/git.php
+  - config/statamic/static_caching.php
+  - .env.example
+  - .gitignore
+  - README.md
+  - resources
+  - routes/web.php
+  - public/assets
+  - public/site
+  - package.json
+  - postcss.config.js
+  - .prettierrc
+  - tailwind.config.js
+  - users
+  - vite.config.js
+  - .vscode/extensions.json
+  - docker-compose.yml
+  - Dockerfile
+  - ray.php
+export_as:
+  starter-kit-composer.json: composer.json
+dependencies:
+  spatie/laravel-ray: ^1.36
+  symfony/http-client: ^7.0
+  symfony/postmark-mailer: ^7.0

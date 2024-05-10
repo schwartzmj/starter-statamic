@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                SSL_MODE: "off"
+        ports:
+            - "8080:8080"
+        environment:
+            - TZ=America/Chicago
+        volumes:
+            - .:/var/www/html
