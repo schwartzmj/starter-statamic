@@ -22,8 +22,6 @@ export_paths:
   - docker-compose.yml
   - Dockerfile
   - ray.php
-export_as:
-  starter-kit-composer.json: composer.json
 dependencies:
   spatie/laravel-ray: ^1.36
   symfony/http-client: ^7.0

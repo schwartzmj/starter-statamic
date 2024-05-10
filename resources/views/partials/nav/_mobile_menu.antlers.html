@@ -1,0 +1,95 @@
+<div class="-mr-1 md:hidden" x-data="{ open: false }" x-cloak>
+    <div>
+        <button
+            class="relative z-10 flex h-8 w-8 items-center justify-center [&:not(:focus-visible)]:focus:outline-none"
+            aria-label="Toggle Navigation"
+            @click="open = !open"
+        >
+            <svg
+                x-show="!open"
+                class="h-3.5 w-3.5 overflow-visible stroke-slate-700"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+            >
+                <path
+                    d="M0 1H14M0 7H14M0 13H14"
+                    class="origin-center transition"
+                ></path>
+                <path
+                    d="M2 2L12 12M12 2L2 12"
+                    class="origin-center scale-90 opacity-0 transition"
+                ></path>
+            </svg>
+            <svg
+                x-cloak
+                x-show="open"
+                aria-hidden="true"
+                class="h-3.5 w-3.5 overflow-visible stroke-slate-700"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+            >
+                <path
+                    d="M0 1H14M0 7H14M0 13H14"
+                    class="origin-center scale-90 opacity-0 transition"
+                ></path>
+                <path
+                    d="M2 2L12 12M12 2L2 12"
+                    class="origin-center transition"
+                ></path>
+            </svg>
+        </button>
+        <div x-show="open" x-cloak>
+            <div
+                class="fixed inset-0 bg-slate-300/50 opacity-100"
+                id="headlessui-popover-overlay-:rm:"
+                aria-hidden="true"
+                x-show="open"
+                x-transition:enter="duration-150 ease-out"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="duration-150 ease-in"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+            ></div>
+            <div
+                class="absolute inset-x-0 top-full mt-4 flex origin-top scale-100 flex-col rounded-2xl bg-white p-4 text-lg tracking-tight text-gray-900 opacity-100 shadow-xl ring-1 ring-slate-900/5"
+                id="headlessui-popover-panel-:R1p6H1:"
+                tabindex="-1"
+                x-show="open"
+                x-transition:enter="duration-150 ease-out"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="duration-100 ease-in"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+                @click.away="open = false"
+            >
+                {{ nav:primary }}
+                    <a class="block w-full p-2" href="{{ url }}">
+                        {{ title }}
+                    </a>
+                {{ /nav:primary }}
+                <hr class="m-2 border-slate-300/40" />
+                {{# Minor CTA #}}
+                <a
+                    class="block w-full p-2"
+                    {{ switch(
+                        (call_to_action.minor_link_type == 'entry') => 'href="{{ call_to_action.minor_entry:url }}"',
+                        (call_to_action.minor_link_type == 'url') => 'href="{{ call_to_action.minor_url }}"',
+                        (call_to_action.minor_link_type == 'email') => 'href="mailto:{{ call_to_action.minor_email | obfuscate_email }}"',
+                        (call_to_action.minor_link_type == 'tel') => 'href="tel:{{ call_to_action.minor_tel }}"',
+                        (call_to_action.minor_link_type == 'asset') => 'href="{{ call_to_action.minor_asset }}" download',
+                        () => void
+                    )}}
+                    {{ target_blank ?= 'rel="noopener" target="_blank"' }}
+                    {{ attr_title ?= 'title="{{ attr_title }}"' }}
+                    {{ attr_aria ?= 'aria-label="{{ attr_aria }}"' }}
+                >
+                    Lorem Ipsum
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

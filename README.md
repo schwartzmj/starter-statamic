@@ -1,5 +1,17 @@
 # starter-statamic
 
+## TODO
+
+-   [ ] More fieldsets
+-   [ ] Blueprints / collections
+-   [ ] Icons in `icons` container/filesystem
+-   [ ] Create some customization commands like deleting certain collections etc that someone might not use?
+-   [ ] Also use this repo to create a custom `{{ img }}` tag or any other addon.
+-   [ ] SEO config instead of an addon (or make our own simple / just the basics addon or include the first party one)
+-   [ ] Analytics config
+-   [ ] When Tailwind update comes out with CSS config, potentially allow doing that in the CP as well?
+-   [ ] Nav review / implementations: children in the ui, site wide primary call to action config in both nav/index and nav/mobile_menu, logo from site config
+
 ## Users
 
 Ships with an admin user already created: `admin@example.com` `Password123!`
@@ -32,3 +44,11 @@ A field to use for image selection. Applies image validation to the Asset field 
 
 -   Adjusting the CMS name and branding in `config/statamic/cp.php`.
 -   Running `npm remove @fontsource-variable/inter`, deleting the import from `resources/js/site.js` and using your own.
+
+## Recommended Extensions
+
+Ships with recommended extensions for Tailwind, Prettier, and Antlers.
+
+## JavaScript Packages
+
+Ships with AlpineJS and a sample font (Inter).

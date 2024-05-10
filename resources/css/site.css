@@ -2,4 +2,53 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* This is all you. */
+[x-cloak] {
+    display: none !important;
+}
+
+html {
+    /* Smooth scrolling on the whole document */
+    /* scroll-behavior: smooth; */
+    /* When click anchor link, scroll this amount above it. */
+    scroll-padding-top: 100px;
+}
+
+@layer base {
+}
+
+@layer components {
+    /* Container is centered by default and also includes default padding in the tailwing.config.js file. */
+    .container-p {
+        @apply container py-20 lg:py-40;
+    }
+
+    .container-m {
+        @apply container my-20 lg:my-40;
+    }
+
+    .base-btn {
+        @apply flex items-center justify-center rounded-sm px-4 py-3 text-sm shadow transition-all duration-300 ease-in-out hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2;
+    }
+
+    .btn {
+        @apply base-btn bg-primary-600 text-white hover:bg-primary-500;
+    }
+
+    .btn-alt {
+        @apply base-btn bg-transparent text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:text-gray-900;
+    }
+
+    .btn-outline {
+        @apply base-btn bg-transparent text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:text-gray-800;
+    }
+
+    .btn-ghost {
+        @apply base-btn border-none bg-none text-gray-600 underline-offset-2 !shadow-none hover:text-gray-800 hover:underline;
+    }
+}
+
+@layer utilities {
+    .btn-sm {
+        @apply px-3 py-2;
+    }
+}

@@ -1,0 +1,28 @@
+<header class="container py-6">
+    <nav class="relative z-50 flex justify-between">
+        <div class="flex items-center md:gap-x-12">
+            <a href="/" aria-label="Home">
+                <img src="/site/img/logo.svg" alt="Logo" class="h-8 w-auto" />
+            </a>
+            <div class="hidden md:flex md:gap-x-6">
+                {{ nav:primary }}
+                    <a
+                        href="{{ url }}"
+                        class="inline-block rounded-lg px-2 py-1 text-sm text-gray-900 hover:text-primary-700 hover:underline"
+                    >
+                        {{ title }}
+                    </a>
+                {{ /nav:primary }}
+            </div>
+        </div>
+        <div class="flex items-center gap-x-5 md:gap-x-8">
+            <div class="hidden md:block">
+                <a href="/contact" class="btn-ghost btn-sm">Contact Us</a>
+            </div>
+            <a href="#" class="btn btn-sm">Lorem Ipsum</a>
+            <div class="md:hidden">
+                {{ partial:nav/mobile_menu }}
+            </div>
+        </div>
+    </nav>
+</header>

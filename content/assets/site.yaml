@@ -1,0 +1,5 @@
+title: Site
+disk: site
+allow_uploads: false
+create_folders: false
+warm_presets: false
