@@ -11,6 +11,7 @@
 -   [ ] Analytics config
 -   [ ] When Tailwind update comes out with CSS config, potentially allow doing that in the CP as well?
 -   [ ] Nav review / implementations: children in the ui, site wide primary call to action config in both nav/index and nav/mobile_menu, logo from site config
+-   [ ] Deploy script, NGINX configuration, steps to deploy like env file config etc.
 
 ## Users
 
