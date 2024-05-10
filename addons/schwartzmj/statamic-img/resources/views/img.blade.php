@@ -1,4 +1,6 @@
-<picture>
+<!-- 
+    TODO: this used to be wrapped in <picture>, but I noticed that things like order-first and order-last don't work with <picture> wrapping it (picture is block so doesn't respect e.g. the continer's grid or flex). Let's just use img srcset and sizes instead of picture for now.
+-->
     @foreach (($breakpoints ?? []) as $breakpoint)
         @foreach($breakpoint->sources() ?? [] as $source)
             @php
@@ -23,4 +25,3 @@
         @isset($height) height="{{ $height }}" @endisset
         loading="{{ $loading }}"
     >
-</picture>

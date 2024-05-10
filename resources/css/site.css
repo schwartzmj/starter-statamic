@@ -54,4 +54,14 @@ html {
     .container-gap {
         @apply gap-8 xl:gap-16;
     }
+    /* Testing full bleed. This may work as long as the parent container has overflow-x: hidden. Can refer to what I've done in the past. Might be best to have an .article wrapper and have a separate css file for article stuff. */
+    /* .full-bleed {
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        max-width: none;
+    } */
 }
