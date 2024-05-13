@@ -5,6 +5,8 @@ namespace Schwartzmj\StatamicImg;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Schwartzmj\StatamicImg\Adapters\CloudflareAdapter;
+use Schwartzmj\StatamicImg\Adapters\GlideAdapter;
 use Statamic\Assets\Asset;
 use Statamic\Tags\Parameters;
 
@@ -112,9 +114,9 @@ class Img
             $size_to_render = $size->getSizeToRender();
             $url = $this->asset->url();
             if (app()->environment('production')) {
-                $url = $this->getCloudflareImageSrc("fit=scale-down,width={$size_to_render}");
+                $url = CloudflareAdapter::toUrl($size_to_render, $this);
             } else {
-                $url = $this->getGlideImageSrc($size_to_render);
+                $url = GlideAdapter::toUrl($size_to_render, $this);
             }
             return "{$url} {$size_to_render}w";
         })->implode(', ');
@@ -135,21 +137,5 @@ class Img
         $last_size = $this->sizes->last();
         $htmlSizes .= "{$last_size->getSizeToRender()}px";
         return $htmlSizes;
-    }
-
-    private function getCloudflareImageSrc(string $transforms): string
-    {
-        $prefix = "/cdn-cgi/image/";
-        $suffix = $this->asset->url();
-        return $prefix . $transforms . $suffix;
-    }
-
-    private function getGlideImageSrc(string $width): string
-    {
-        $url = '';
-        foreach (\Statamic::tag('glide:generate')->src($this->asset)->width($width) as $image) {
-            $url = $image['url'];
-        }
-        return $url;
     }
 }
