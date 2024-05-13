@@ -35,6 +35,7 @@ class ImgTag extends Tags
      */
     public function index(): array|string
     {
+        // TODO: Check the type of error and if we can at least serve an unoptimized image in production, do so?
         try {
             $this->asset = $this->retrieveAsset($this->params->get('src'));
             $img = new Img(
@@ -43,7 +44,7 @@ class ImgTag extends Tags
             );
         } catch (Exception $e) {
             if (app()->environment('production')) {
-                Log::error('Unable to retrieve asset in Img tag', ['message' => $e->getMessage()]);
+                Log::error('Unable to render img tag', ['message' => $e->getMessage()]);
                 return '';
             }
             throw $e;

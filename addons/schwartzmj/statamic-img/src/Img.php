@@ -2,6 +2,7 @@
 
 namespace Schwartzmj\StatamicImg;
 
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Statamic\Assets\Asset;
@@ -9,11 +10,12 @@ use Statamic\Tags\Parameters;
 
 class Img
 {
-    public ImgBreakpoint $defaultBreakpoint;
-    /** @var Collection<ImgBreakpoint> */
-    public Collection $imgBreakpoints;
-    private array $arbitraryParams;
-    private array $imgParams;
+    /** @var Collection<Size> */
+    public Collection $sizes;
+    private Parameters $arbitraryParams;
+    public string $maxWidth;
+    public string $alt;
+    public string $loading;
 
     private array $breakpointMap = [
         'sm' => 640,
@@ -23,112 +25,67 @@ class Img
         '2xl' => 1536,
     ];
 
+    /**
+     * Attributes we use and manipulate that we do not want to pass to the img tag directly. In other words, a filter for "arbitrary" attributes.
+     */
     private array $reservedImgParams = [
         'src',
-        'anim',
-        'background',
-        'blur',
-        'brightness',
-        'contrast',
-        'dpr',
-        'gamma',
-        'metadata',
-        'quality',
-        'rotate',
-        'sharpen',
-        'trim',
-        'fit',
-        'gravity',
         'width',
         'height',
         'maxWidth',
-        'size',
+        'sizes',
+        'alt',
+        'srcset',
+        'transforms',
+        'loading',
+//        'anim',
+//        'background',
+//        'blur',
+//        'brightness',
+//        'contrast',
+//        'dpr',
+//        'gamma',
+//        'metadata',
+//        'quality',
+//        'rotate',
+//        'sharpen',
+//        'trim',
+//        'fit',
+//        'gravity',
     ];
 
+    /**
+     * @throws Exception
+     */
     function __construct(
         public Asset      $asset,
         public Parameters $parameters,
     )
     {
-        $this->handleParams();
-    }
+        $asset_width = $this->asset->width();
+        $asset_height = $this->asset->height();
+        if (!$asset_width || !$asset_height) {
+            throw new Exception("Asset {$this->asset->id()} has 0 width or height. Cannot create responsive variants.");
+        }
+        $asset_ratio = $asset_width / $asset_height;
 
-    public function handleParams()
-    {
-        $default_breakpoint_params = [
-            'maxWidth' => $this->parameters->get('maxWidth', 1920),
-            'size' => $this->parameters->get('size', 100),
-        ];
+        $sizes = Str::squish($this->parameters->get('sizes', '100vw'));
 
-        $sm_params = [];
-        $md_params = [];
-        $lg_params = [];
-        $xl_params = [];
-        $xxl_params = [];
+        $this->maxWidth = $this->parameters->get('maxWidth', 1600);
+        $this->alt = $this->parameters->get('alt', $this->asset->alt ?? '');
+        $this->loading = $this->parameters->get('loading', 'lazy');
 
-        $this->parameters->each(function ($value, $key) use (&$default_breakpoint_params, &$sm_params, &$md_params, &$lg_params, &$xl_params, &$xxl_params) {
-            if (in_array($key, $this->reservedImgParams)) {
-                $default_breakpoint_params[$key] = $value;
-                return;
-            }
-
-            if (Str::startsWith($key, 'sm:')) {
-                $sm_params[Str::after($key, 'sm:')] = $value;
-            } elseif (Str::startsWith($key, 'md:')) {
-                $md_params[Str::after($key, 'md:')] = $value;
-            } elseif (Str::startsWith($key, 'lg:')) {
-                $lg_params[Str::after($key, 'lg:')] = $value;
-            } elseif (Str::startsWith($key, 'xl:')) {
-                $xl_params[Str::after($key, 'xl:')] = $value;
-            } elseif (Str::startsWith($key, '2xl:')) {
-                $xxl_params[Str::after($key, '2xl:')] = $value;
-            } else {
-                $this->arbitraryParams[$key] = $value;
-            }
+        $this->arbitraryParams = $this->parameters->reject(function ($value, $key) {
+            return in_array($key, $this->reservedImgParams);
         });
-
-        $this->defaultBreakpoint = new ImgBreakpoint(
-            breakpointLabel: 'default',
-            breakpointPx: 0,
-            parameters: new Parameters($default_breakpoint_params),
-            asset: $this->asset,
-        );
-
-        $previous_params = $default_breakpoint_params;
-
-        $this->imgBreakpoints = collect($this->breakpointMap)
-            ->map(function ($breakpointPx, $breakpointLabel) use ($default_breakpoint_params, $sm_params, $md_params, $lg_params, $xl_params, $xxl_params, &$previous_params) {
-                $params = match ($breakpointLabel) {
-                    'sm' => array_merge($previous_params, $sm_params),
-                    'md' => array_merge($previous_params, $md_params),
-                    'lg' => array_merge($previous_params, $lg_params),
-                    'xl' => array_merge($previous_params, $xl_params),
-                    '2xl' => array_merge($previous_params, $xxl_params),
-                };
-
-                $previous_params = $params;
-
-                return new ImgBreakpoint(
-                    breakpointLabel: $breakpointLabel,
-                    breakpointPx: $breakpointPx,
-                    parameters: new Parameters($params),
-                    asset: $this->asset,
-                );
-            });
-    }
-
-    public function getSrcsetString(): string
-    {
-        return $this->imgBreakpoints->map(function (ImgBreakpoint $imgBreakpoint) {
-            return $imgBreakpoint->getSrcsetString();
-        })->implode(', ');
-    }
-
-    public function getSizesString(): string
-    {
-        return $this->imgBreakpoints->map(function (ImgBreakpoint $imgBreakpoint) {
-            return $imgBreakpoint->getSizesString();
-        })->implode(', ');
+        $this->sizes = collect();
+        foreach (explode(' ', $sizes) as $size) {
+            $size = new Size($size);
+            if ($size->isValid) {
+                $this->sizes->push($size);
+            }
+        }
+        $this->sizes->sortBy('breakpointWidth');
     }
 
     public function getArbitraryAttributesString(): string
@@ -137,5 +94,49 @@ class Img
             ->map(function ($value, $name) {
                 return $name . '="' . $value . '"';
             })->implode(' ');
+    }
+
+    public function getSrcsetString(): string
+    {
+        return $this->sizes->map(function ($size) {
+            $size_to_render = $size->getSizeToRender();
+            if ($size_to_render > $this->maxWidth) {
+                $size_to_render = $this->maxWidth;
+            }
+            $url = $this->asset->url();
+            if (!app()->environment('production')) {
+                $url = $this->getCloudflareImageSrc("fit=scale-down,width={$size_to_render}");
+            }
+            return "{$url} {$size_to_render}w";
+        })->implode(', ');
+    }
+
+    public function getSizesString(): string
+    {
+        $htmlSizes = '';
+        $default_size = $this->sizes->first(function ($size) {
+            return $size->breakpoint === null;
+        });
+        foreach (Breakpoint::cases() as $bp) {
+            $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
+                return $size->breakpoint === $bp;
+            });
+            if ($corresponding_size) {
+                $htmlSizes .= "(max-width: {$bp->value}px) {$corresponding_size->getSizeToRender()}px, ";
+            }
+        }
+        if ($default_size) {
+            $htmlSizes .= "{$default_size->getSizeToRender()}px";
+        } else {
+            $htmlSizes = '100vw';
+        }
+        return $htmlSizes;
+    }
+
+    private function getCloudflareImageSrc(string $transforms): string
+    {
+        $prefix = "/cdn-cgi/image/";
+        $suffix = $this->asset->url();
+        return $prefix . $transforms . $suffix;
     }
 }

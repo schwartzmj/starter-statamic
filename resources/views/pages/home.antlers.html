@@ -84,7 +84,8 @@
 <section class="container-p">
     <div class="relative" x-data="test_img">
         {{ img src="/site/img/northern-lights.jpg" class="hover:scale-105 transition duration-150 ease-in-out
-        cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" size="50" }}
+        cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" sizes="100vw md:100vw
+        xl:25vw" }}
         <p
             x-text="coords"
             class="absolute left-0 top-0 rounded p-4 text-white shadow-md"

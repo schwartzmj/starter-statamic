@@ -27,24 +27,45 @@
 {{--        loading="{{ $loading }}"--}}
 {{--    >--}}
 @php
-    ray($img);
+    //    ray($img);
 @endphp
 
-@if(app()->environment('production'))
-    <img
-        src="{{ $img->asset->url() }}"
-        alt="{{ $img->asset->alt }}"
-        {!! $img->getArbitraryAttributesString() !!}
-        srcset="{{ $img->getSrcsetString() }}"
-        sizes="{{ $img->getSizesString() }}"
-    />
-@else
-    <img
-        src="{{ $img->asset->url() }}"
-        alt="{{ $img->asset->alt }}"
-        {!! $img->getArbitraryAttributesString() !!}
-        srcset="{{ $img->getSrcsetString() }}"
-        sizes="{{ $img->getSizesString() }}"
-    />
-@endif
+{{--@if(app()->environment('production'))--}}
+{{--    <img--}}
+{{--        src="{{ $img->asset->url() }}"--}}
+{{--        alt="{{ $img->asset->alt }}"--}}
+{{--        {!! $img->getArbitraryAttributesString() !!}--}}
+{{--        srcset="{{ $img->getSrcsetString() }}"--}}
+{{--        sizes="{{ $img->getSizesString() }}"--}}
+{{--    />--}}
+{{--@else--}}
+{{--    <img--}}
+{{--        src="{{ $img->asset->url() }}"--}}
+{{--        alt="{{ $img->asset->alt }}"--}}
+{{--        {!! $img->getArbitraryAttributesString() !!}--}}
+{{--        srcset="{{ $img->getSrcsetString() }}"--}}
+{{--        sizes="{{ $img->getSizesString() }}"--}}
+{{--    />--}}
+{{--@endif--}}
 
+<img
+    {!! $img->getArbitraryAttributesString() !!}
+    src="{{ $img->asset->url() }}"
+    alt="{{ $img->alt }}"
+    srcset="{{ $img->getSrcsetString() }}"
+    sizes="{{ $img->getSizesString() }}"
+    width="{{ $img->asset->width() }}"
+    height="{{ $img->asset->height() }}"
+    loading="{{ $img->loading }}"
+/>
+
+
+{{--public function getSrcsetString(): string--}}
+{{--{--}}
+{{--return "{$this->asset->url()} {$this->width}w";--}}
+{{--}--}}
+
+{{--public function getSizesString(): string--}}
+{{--{--}}
+{{--return "(max-width: {$this->breakpointPx}px) {$this->width}px";--}}
+{{--}--}}
