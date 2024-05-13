@@ -13,17 +13,17 @@ class Img
     /** @var Collection<Size> */
     public Collection $sizes;
     private Parameters $arbitraryParams;
-    public string $maxWidth;
+    public int $maxWidth;
     public string $alt;
     public string $loading;
 
-    private array $breakpointMap = [
-        'sm' => 640,
-        'md' => 768,
-        'lg' => 1024,
-        'xl' => 1280,
-        '2xl' => 1536,
-    ];
+//    private array $breakpointMap = [
+//        'sm' => 640,
+//        'md' => 768,
+//        'lg' => 1024,
+//        'xl' => 1280,
+//        '2xl' => 1536,
+//    ];
 
     /**
      * Attributes we use and manipulate that we do not want to pass to the img tag directly. In other words, a filter for "arbitrary" attributes.
@@ -38,20 +38,6 @@ class Img
         'srcset',
         'transforms',
         'loading',
-//        'anim',
-//        'background',
-//        'blur',
-//        'brightness',
-//        'contrast',
-//        'dpr',
-//        'gamma',
-//        'metadata',
-//        'quality',
-//        'rotate',
-//        'sharpen',
-//        'trim',
-//        'fit',
-//        'gravity',
     ];
 
     /**
@@ -62,6 +48,9 @@ class Img
         public Parameters $parameters,
     )
     {
+        if (!$this->asset->isImage()) {
+            throw new Exception("Asset {$this->asset->id()} is not an image. Cannot create responsive variants.");
+        }
         $asset_width = $this->asset->width();
         $asset_height = $this->asset->height();
         if (!$asset_width || !$asset_height) {
@@ -69,22 +58,47 @@ class Img
         }
         $asset_ratio = $asset_width / $asset_height;
 
-        $sizes = Str::squish($this->parameters->get('sizes', '100vw'));
-
-        $this->maxWidth = $this->parameters->get('maxWidth', 1600);
+        $this->maxWidth = (int)$this->parameters->get('maxWidth', 1600);
         $this->alt = $this->parameters->get('alt', $this->asset->alt ?? '');
         $this->loading = $this->parameters->get('loading', 'lazy');
+
+        $this->bootSizes();
 
         $this->arbitraryParams = $this->parameters->reject(function ($value, $key) {
             return in_array($key, $this->reservedImgParams);
         });
+
+    }
+
+    private function bootSizes()
+    {
+        $sizes = Str::squish($this->parameters->get('sizes', '100vw'));
         $this->sizes = collect();
         foreach (explode(' ', $sizes) as $size) {
-            $size = new Size($size);
+            $size = new Size(size: $size, maxWidth: $this->maxWidth);
             if ($size->isValid) {
                 $this->sizes->push($size);
             }
         }
+        $this->sizes->sortBy('breakpointWidth');
+        // Fill in any missing sizes
+        /** @var Collection<Size> $new_sizes */
+        $new_sizes = collect();
+        $breakpoints = Breakpoint::cases();
+        /** @var Size $previous_size */
+        $previous_size = $this->sizes->first();
+        foreach ($breakpoints as $bp) {
+            $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
+                return $size->breakpoint === $bp;
+            });
+            if (!$corresponding_size) {
+                $new_size = new Size(size: "{$bp->name}:{$previous_size->widthValue}{$previous_size->widthUnit}", maxWidth: $this->maxWidth);
+                $new_sizes->push($new_size);
+            } else {
+                $previous_size = $corresponding_size;
+            }
+        }
+        $this->sizes = $this->sizes->merge($new_sizes);
         $this->sizes->sortBy('breakpointWidth');
     }
 
@@ -104,8 +118,10 @@ class Img
                 $size_to_render = $this->maxWidth;
             }
             $url = $this->asset->url();
-            if (!app()->environment('production')) {
+            if (app()->environment('production')) {
                 $url = $this->getCloudflareImageSrc("fit=scale-down,width={$size_to_render}");
+            } else {
+                $url = $this->getGlideImageSrc($size_to_render);
             }
             return "{$url} {$size_to_render}w";
         })->implode(', ');
@@ -114,9 +130,7 @@ class Img
     public function getSizesString(): string
     {
         $htmlSizes = '';
-        $default_size = $this->sizes->first(function ($size) {
-            return $size->breakpoint === null;
-        });
+
         foreach (Breakpoint::cases() as $bp) {
             $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
                 return $size->breakpoint === $bp;
@@ -125,11 +139,8 @@ class Img
                 $htmlSizes .= "(max-width: {$bp->value}px) {$corresponding_size->getSizeToRender()}px, ";
             }
         }
-        if ($default_size) {
-            $htmlSizes .= "{$default_size->getSizeToRender()}px";
-        } else {
-            $htmlSizes = '100vw';
-        }
+        $last_size = $this->sizes->last();
+        $htmlSizes .= "{$last_size->getSizeToRender()}px";
         return $htmlSizes;
     }
 
@@ -138,5 +149,14 @@ class Img
         $prefix = "/cdn-cgi/image/";
         $suffix = $this->asset->url();
         return $prefix . $transforms . $suffix;
+    }
+
+    private function getGlideImageSrc(string $width): string
+    {
+        $url = '';
+        foreach (\Statamic::tag('glide:generate')->src($this->asset)->width($width) as $image) {
+            $url = $image['url'];
+        }
+        return $url;
     }
 }

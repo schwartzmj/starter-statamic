@@ -7,8 +7,6 @@ use Illuminate\Support\Str;
 
 class Size
 {
-//    public string $breakpointName;
-//    public int $breakpointWidth;
     public int $widthValue;
     public ?Breakpoint $breakpoint = null;
     public string $widthUnit;
@@ -18,26 +16,28 @@ class Size
     /**
      * @throws Exception
      */
-    function __construct(public string $size)
+    function __construct(public string $size, public int $maxWidth)
     {
         $this->size = Str::trim($size);
-//        try {
-        $exploded = explode(':', $this->size);
-        if (count($exploded) === 2) {
-            $this->bootPrefixedSize($exploded[0], $exploded[1]);
-        } else {
-            $this->bootDefaultSize($this->size);
+        try {
+            $exploded = explode(':', $this->size);
+            if (count($exploded) === 2) {
+                $this->bootPrefixedSize($exploded[0], $exploded[1]);
+            } else {
+                $this->bootDefaultSize($this->size);
+            }
+            $this->isValid = true;
+        } catch (Exception $e) {
+            $this->isValid = false;
+            $this->widthValue = 100;
+            $this->widthUnit = 'vw';
+            Log::error('Unable to parse size', ['message' => $e->getMessage()]);
         }
-        $this->isValid = true;
-//        } catch (Exception $e) {
-//            $this->isValid = false;
-//            $this->breakpointName = 'default';
-//            $this->breakpointWidth = 0;
-//            $this->widthValue = 100;
-//            $this->widthUnit = 'vw';
-//            Log::error('Unable to parse size', ['message' => $e->getMessage()]);
-//        }
+    }
 
+    public function isDefaultBreakpoint(): bool
+    {
+        return $this->breakpoint === null;
     }
 
     /**
@@ -91,12 +91,14 @@ class Size
     {
         $bp_width = $this->breakpoint ? $this->breakpoint->value : Breakpoint::sm->value;
         if ($this->widthUnit === 'px') {
-            return min($bp_width, $this->widthValue);
+            return min($bp_width, $this->widthValue, $this->maxWidth);
         }
         if ($this->widthUnit === 'vw') {
-            return round($bp_width * ($this->widthValue / 100));
+            $size_to_render = round($bp_width * ($this->widthValue / 100));
+            return min($size_to_render, $this->maxWidth);
         }
         // Assume vw TODO: how do we want to handle this
-        return round($bp_width * ($this->widthValue / 100));
+        $size_to_render = round($bp_width * ($this->widthValue / 100));
+        return min($size_to_render, $this->maxWidth);
     }
 }
