@@ -66,7 +66,7 @@ class Img
         $this->bootSizes();
     }
 
-    private function bootSizes()
+    private function bootSizes(): void
     {
         $sizes = Str::squish($this->parameters->get('sizes', '100vw'));
         $this->sizes = collect();
@@ -110,9 +110,6 @@ class Img
     {
         return $this->sizes->map(function ($size) {
             $size_to_render = $size->getSizeToRender();
-            if ($size_to_render > $this->maxWidth) {
-                $size_to_render = $this->maxWidth;
-            }
             $url = $this->asset->url();
             if (app()->environment('production')) {
                 $url = $this->getCloudflareImageSrc("fit=scale-down,width={$size_to_render}");

@@ -1,5 +1,12 @@
 # Statamic Img
 
+## TODO
+
+- [ ] Make interface for an "adapter". e.g. dev would probably always use glide, but prod might use cloudflare or some
+  other
+- [ ] Fallback (standard src attribute) should probably not be the source img? Optimize it somehow? Or will it fall back
+  if others aren't found?
+
 > Statamic Img is a Statamic addon that does something pretty neat.
 
 ## Features
