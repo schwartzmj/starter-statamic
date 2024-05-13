@@ -38,6 +38,10 @@ class ImgTag extends Tags
         // TODO: Check the type of error and if we can at least serve an unoptimized image in production, do so?
         try {
             $this->asset = $this->retrieveAsset($this->params->get('src'));
+            // TODO: flesh this out more, and maybe in the Img class?
+            if ($this->asset->extension == 'svg' || $this->asset->extension == 'gif') {
+                return "<img src=\"{$this->asset->url()}\" alt=\"{$this->asset->alt}\" />";
+            }
             $img = new Img(
                 asset: $this->asset,
                 parameters: $this->params,

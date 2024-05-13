@@ -7,7 +7,6 @@
     </p>
 </div> -->
 
-{{#
 <section class="container-p container-gap grid grid-cols-1 xl:grid-cols-2">
     <div>
         <h2 class="mt-4 text-5xl font-normal">Lorem Ipsum</h2>
@@ -31,7 +30,7 @@
             </ul>
         </div>
     </div>
-    {{ img src="/site/img/northern-lights.jpg" class="rounded shadow-md shadow-stone-800/50" }}
+    {{ img src="/site/img/northern-lights.jpg" class="rounded shadow-md shadow-stone-800/50" sizes="90vw xl:50vw" }}
 </section>
 <section class="container-p container-gap grid grid-cols-1 xl:grid-cols-2">
     <div>
@@ -51,8 +50,7 @@
             </p>
         </div>
     </div>
-    {{ img src="/site/img/northern-lights.jpg" class="order-last rounded shadow-md shadow-stone-800/50 xl:order-first"
-    }}
+    {{ img src="/site/img/northern-lights.jpg" class="order-last rounded shadow-md shadow-stone-800/50 xl:order-first" sizes="90vw xl:50vw" }}
 </section>
 <section class="container-p container-gap grid grid-cols-1 xl:grid-cols-2">
     <div>
@@ -77,15 +75,14 @@
             </ul>
         </div>
     </div>
-    {{ img src="/site/img/northern-lights.jpg" class="rounded shadow-md shadow-stone-800/50" }}
+    {{ img src="/site/img/northern-lights.jpg" class="rounded shadow-md shadow-stone-800/50" sizes="90vw xl:50vw" }}
 </section>
-#}}
 
 <section class="container-p">
     <div class="relative" x-data="test_img">
         {{ img src="/site/img/northern-lights.jpg" class="hover:scale-105 transition duration-150 ease-in-out
-        cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" sizes="100vw md:100vw
-        xl:25vw" }}
+        cursor-pointer" @click="onClick" @mousemove="onMouseover" @mouseleave="coords = ''" sizes="100vw lg:50vw
+        xl:100vw" }}
         <p
             x-text="coords"
             class="absolute left-0 top-0 rounded p-4 text-white shadow-md"
@@ -95,14 +92,13 @@
         document.addEventListener("alpine:init", () => {
             Alpine.data("test_img", () => ({
                 coords: "",
-                init() {
-                },
+                init() {},
                 onClick() {
                     alert("Hello world!");
                 },
                 onMouseover(event) {
                     this.coords = event.clientX + ", " + event.clientY;
-                }
+                },
             }));
         });
     </script>

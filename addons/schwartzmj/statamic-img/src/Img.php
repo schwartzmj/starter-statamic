@@ -61,13 +61,9 @@ class Img
         $this->maxWidth = (int)$this->parameters->get('maxWidth', 1600);
         $this->alt = $this->parameters->get('alt', $this->asset->alt ?? '');
         $this->loading = $this->parameters->get('loading', 'lazy');
+        $this->arbitraryParams = $this->parameters->except($this->reservedImgParams);
 
         $this->bootSizes();
-
-        $this->arbitraryParams = $this->parameters->reject(function ($value, $key) {
-            return in_array($key, $this->reservedImgParams);
-        });
-
     }
 
     private function bootSizes()
