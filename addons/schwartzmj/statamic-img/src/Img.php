@@ -13,6 +13,7 @@ class Img
     /** @var Collection<ImgBreakpoint> */
     public Collection $imgBreakpoints;
     private array $arbitraryParams;
+    private array $imgParams;
 
     private array $breakpointMap = [
         'sm' => 640,
