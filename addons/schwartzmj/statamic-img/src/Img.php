@@ -61,38 +61,16 @@ class Img
         }
         $asset_ratio = $asset_width / $asset_height;
 
-        $this->maxWidth = (int)$this->parameters->get('maxWidth', 1600);
+        // Override max width if image is less than the given value or our default
+        $provided_max_width = (int)$this->parameters->get('maxWidth', 1600);
+        $this->maxWidth = min($provided_max_width, $asset_width);
+
         $this->alt = $this->parameters->get('alt', $this->asset->alt ?? '');
         $this->loading = $this->parameters->get('loading', 'lazy');
         $this->arbitraryParams = $this->parameters->except($this->reservedImgParams);
 
         $this->bootSizes();
-//        $this->createBreakpoints();
     }
-
-//    private function createBreakpoints(): void
-//    {
-//        $breakpoints = Breakpoint::cases();
-//        $img_breakpoints = [
-//            'default' => $this->sizes->first(),
-//        ];
-//        $previous_breakpoint = $this->sizes->first();
-//        foreach ($breakpoints as $bp) {
-//            $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
-//                return $size->breakpoint === $bp;
-//            });
-//            if ($corresponding_size) {
-//                $img_breakpoints[$bp->name] = $corresponding_size;
-//                $previous_breakpoint = $corresponding_size;
-//            } else {
-//                $img_breakpoints[$bp->name] = new Size(
-//                    size: "{$bp->name}:{$previous_breakpoint->widthValue}{$previous_breakpoint->widthUnit}",
-//                    maxWidth: $this->maxWidth
-//                );
-//            }
-//        }
-//        ray($img_breakpoints);
-//    }
 
     private function bootSizes(): void
     {
@@ -171,11 +149,11 @@ class Img
                 $default_size = $size;
                 continue;
             }
-            $htmlSizes .= "(min-width: {$size->breakpointWidth}px) {$size->sizeToRender}px, ";
+            $htmlSizes .= "(min-width: {$size->breakpointWidth}px) {$size->getSizesAttributeValue()}, ";
         }
         // TODO: should always be a default size, but for right now we'll prevent an error in production if we're wrong
         if ($default_size) {
-            $htmlSizes .= "{$default_size->sizeToRender}px";
+            $htmlSizes .= "{$size->getSizesAttributeValue()}";
         } else {
             $htmlSizes = rtrim($htmlSizes, ', ');
         }

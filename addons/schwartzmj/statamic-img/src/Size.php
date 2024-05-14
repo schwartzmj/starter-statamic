@@ -99,4 +99,16 @@ class Size
         $size_to_render = round($this->breakpointWidth * ($this->widthValue / 100));
         return min($size_to_render, $this->maxWidth);
     }
+
+    /**
+     * @description Get the sizes attribute value for this size. e.g. "320px" or "100vw"
+     */
+    public function getSizesAttributeValue(): string
+    {
+        if ($this->widthUnit === 'px') {
+            return "{$this->sizeToRender}px";
+        }
+        // Only other option is 'vw' so we can safely assume it's that.
+        return "{$this->widthValue}vw";
+    }
 }
