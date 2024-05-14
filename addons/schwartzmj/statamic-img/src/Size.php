@@ -79,7 +79,11 @@ class Size
         foreach (self::$validSuffixes as $suffix) {
             if (str_ends_with($size, $suffix)) {
                 $this->widthUnit = $suffix;
-                $width = (int)Str::before($size, $suffix);
+                $width = Str::before($size, $suffix);
+                if (!is_numeric($width)) {
+                    throw new Exception("Invalid width value: $width");
+                }
+                $width = (int)$width;
                 if ($width <= 0) {
                     throw new Exception("Invalid width value: $width");
                 }
