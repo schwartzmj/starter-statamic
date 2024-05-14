@@ -95,14 +95,12 @@ class Img
         /** @var Collection<Size> $new_sizes */
         $new_sizes = collect();
 
-        /** @var Size $previous_size */
         $previous_size = $this->sizes->first();
         foreach (Constants::BREAKPOINTS as $bp_name => $bp_width) {
             $corresponding_size = $this->sizes->first(function ($size) use ($bp_name, $bp_width) {
                 return $size->breakpointWidth === $bp_width;
             });
-            // If we don't have a size for this breakpoint, create one based on the previous size, but only if the previous size is in vw units because px will not change as the viewport changes
-            if (!$corresponding_size && $previous_size->widthUnit === 'vw') {
+            if (!$corresponding_size) {
                 $new_size = new Size(size: "{$bp_name}:{$previous_size->widthValue}{$previous_size->widthUnit}", maxWidth: $this->maxWidth);
                 $new_sizes->push($new_size);
                 $previous_size = $new_size;
@@ -127,7 +125,7 @@ class Img
         $already_specified_sizes = [];
         return $this->sizes->map(function ($size) use (&$already_specified_sizes) {
             if (in_array($size->sizeToRender, $already_specified_sizes)) {
-                return '';
+                return null;
             }
             if (app()->environment('production')) {
                 $url = CloudflareAdapter::toUrl($size->sizeToRender, $this);
@@ -136,7 +134,9 @@ class Img
             }
             $already_specified_sizes[] = $size->sizeToRender;
             return "{$url} {$size->sizeToRender}w";
-        })->implode(', ');
+        })
+            ->filter()
+            ->implode(', ');
     }
 
     public function getSizesString(): string
