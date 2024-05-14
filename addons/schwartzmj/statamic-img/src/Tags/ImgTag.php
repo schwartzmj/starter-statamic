@@ -35,21 +35,35 @@ class ImgTag extends Tags
      */
     public function index(): array|string
     {
-        // TODO: Check the type of error and if we can at least serve an unoptimized image in production, do so?
+        $is_production_env = app()->environment('production');
         try {
             $this->asset = $this->retrieveAsset($this->params->get('src'));
             // TODO: flesh this out more, and maybe in the Img class?
             if ($this->asset->extension == 'svg' || $this->asset->extension == 'gif') {
                 return "<img src=\"{$this->asset->url()}\" alt=\"{$this->asset->alt}\" />";
             }
+        } catch (Exception $e) {
+            if ($is_production_env) {
+                Log::error('Unable to retrieve asset in ImgTag, rendering empty string.', [
+                    'message' => $e->getMessage(),
+                    'params' => $this->params->all(),
+                ]);
+                return "";
+            }
+            throw $e;
+        }
+        try {
             $img = new Img(
                 asset: $this->asset,
                 parameters: $this->params,
             );
         } catch (Exception $e) {
-            if (app()->environment('production')) {
-                Log::error('Unable to render img tag', ['message' => $e->getMessage()]);
-                return '';
+            if ($is_production_env) {
+                Log::error('Error in Img.php, rendering raw img tag w/ asset url', [
+                    'message' => $e->getMessage(),
+                    'params' => $this->params->all(),
+                ]);
+                return "<img src=\"{$this->asset->url()}\" alt=\"{$this->asset->alt}\" />";
             }
             throw $e;
         }
