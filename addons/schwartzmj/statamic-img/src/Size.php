@@ -33,19 +33,22 @@ class Size
             $this->sizeToRender = $this->calculateSizeToRender();
             $this->isValid = true;
         } catch (Exception $e) {
-            ray('am i erroring', $size, $maxWidth)->red();
-            $this->isValid = false;
-            $this->widthValue = 100;
-            $this->widthUnit = 'vw';
-            $this->breakpointName = 'default';
-            $this->breakpointWidth = Constants::BREAKPOINTS['default'];
-            $this->sizeToRender = $this->calculateSizeToRender();
-            Log::error('Unable to parse size', [
-                'message' => $e->getMessage(),
-                [
-                    'this' => $this,
-                ]
-            ]);
+            if (app()->environment('production')) {
+                $this->isValid = false;
+                $this->widthValue = 100;
+                $this->widthUnit = 'vw';
+                $this->breakpointName = 'default';
+                $this->breakpointWidth = Constants::BREAKPOINTS['default'];
+                $this->sizeToRender = $this->calculateSizeToRender();
+                Log::error('Unable to parse size', [
+                    'message' => $e->getMessage(),
+                    [
+                        'this' => $this,
+                    ]
+                ]);
+            } else {
+                throw $e;
+            }
         }
     }
 
