@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Schwartzmj\StatamicImg\Adapters\CloudflareAdapter;
 use Schwartzmj\StatamicImg\Adapters\GlideAdapter;
+use Schwartzmj\StatamicImg\Constants\Constants;
 use Statamic\Assets\Asset;
 use Statamic\Tags\Parameters;
 
@@ -66,11 +67,37 @@ class Img
         $this->arbitraryParams = $this->parameters->except($this->reservedImgParams);
 
         $this->bootSizes();
+//        $this->createBreakpoints();
     }
+
+//    private function createBreakpoints(): void
+//    {
+//        $breakpoints = Breakpoint::cases();
+//        $img_breakpoints = [
+//            'default' => $this->sizes->first(),
+//        ];
+//        $previous_breakpoint = $this->sizes->first();
+//        foreach ($breakpoints as $bp) {
+//            $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
+//                return $size->breakpoint === $bp;
+//            });
+//            if ($corresponding_size) {
+//                $img_breakpoints[$bp->name] = $corresponding_size;
+//                $previous_breakpoint = $corresponding_size;
+//            } else {
+//                $img_breakpoints[$bp->name] = new Size(
+//                    size: "{$bp->name}:{$previous_breakpoint->widthValue}{$previous_breakpoint->widthUnit}",
+//                    maxWidth: $this->maxWidth
+//                );
+//            }
+//        }
+//        ray($img_breakpoints);
+//    }
 
     private function bootSizes(): void
     {
         $sizes = Str::squish($this->parameters->get('sizes', '100vw'));
+
         $this->sizes = collect();
         foreach (explode(' ', $sizes) as $size) {
             $size = new Size(size: $size, maxWidth: $this->maxWidth);
@@ -78,26 +105,35 @@ class Img
                 $this->sizes->push($size);
             }
         }
-        $this->sizes->sortBy('breakpointWidth');
+        $this->sizes = $this->sizes->sortBy('breakpointWidth');
+        // Check for a "default" first size
+        $first_size = $this->sizes->first();
+        if (!$first_size->isDefaultBreakpoint()) {
+            $default_size = new Size(size: "100vw", maxWidth: $this->maxWidth);
+            $this->sizes->prepend($default_size);
+        }
+
         // Fill in any missing sizes
         /** @var Collection<Size> $new_sizes */
         $new_sizes = collect();
-        $breakpoints = Breakpoint::cases();
+
         /** @var Size $previous_size */
         $previous_size = $this->sizes->first();
-        foreach ($breakpoints as $bp) {
-            $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
-                return $size->breakpoint === $bp;
+        foreach (Constants::BREAKPOINTS as $bp_name => $bp_width) {
+            $corresponding_size = $this->sizes->first(function ($size) use ($bp_name, $bp_width) {
+                return $size->breakpointWidth === $bp_width;
             });
-            if (!$corresponding_size) {
-                $new_size = new Size(size: "{$bp->name}:{$previous_size->widthValue}{$previous_size->widthUnit}", maxWidth: $this->maxWidth);
+            // If we don't have a size for this breakpoint, create one based on the previous size, but only if the previous size is in vw units because px will not change as the viewport changes
+            if (!$corresponding_size && $previous_size->widthUnit === 'vw') {
+                $new_size = new Size(size: "{$bp_name}:{$previous_size->widthValue}{$previous_size->widthUnit}", maxWidth: $this->maxWidth);
                 $new_sizes->push($new_size);
+                $previous_size = $new_size;
             } else {
                 $previous_size = $corresponding_size;
             }
         }
         $this->sizes = $this->sizes->merge($new_sizes);
-        $this->sizes->sortBy('breakpointWidth');
+        $this->sizes = $this->sizes->sortBy('breakpointWidth');
     }
 
     public function getArbitraryAttributesString(): string
@@ -110,32 +146,39 @@ class Img
 
     public function getSrcsetString(): string
     {
-        return $this->sizes->map(function ($size) {
-            $size_to_render = $size->getSizeToRender();
-            $url = $this->asset->url();
-            if (app()->environment('production')) {
-                $url = CloudflareAdapter::toUrl($size_to_render, $this);
-            } else {
-                $url = GlideAdapter::toUrl($size_to_render, $this);
+        $already_specified_sizes = [];
+        return $this->sizes->map(function ($size) use (&$already_specified_sizes) {
+            if (in_array($size->sizeToRender, $already_specified_sizes)) {
+                return '';
             }
-            return "{$url} {$size_to_render}w";
+            if (app()->environment('production')) {
+                $url = CloudflareAdapter::toUrl($size->sizeToRender, $this);
+            } else {
+                $url = GlideAdapter::toUrl($size->sizeToRender, $this);
+            }
+            $already_specified_sizes[] = $size->sizeToRender;
+            return "{$url} {$size->sizeToRender}w";
         })->implode(', ');
     }
 
     public function getSizesString(): string
     {
         $htmlSizes = '';
-
-        foreach (Breakpoint::cases() as $bp) {
-            $corresponding_size = $this->sizes->first(function ($size) use ($bp) {
-                return $size->breakpoint === $bp;
-            });
-            if ($corresponding_size) {
-                $htmlSizes .= "(max-width: {$bp->value}px) {$corresponding_size->getSizeToRender()}px, ";
+        $default_size = null;
+        foreach ($this->sizes->sortByDesc('breakpointWidth') as $size) {
+            // If it's the default size, we save it for last
+            if ($size->isDefaultBreakpoint()) {
+                $default_size = $size;
+                continue;
             }
+            $htmlSizes .= "(min-width: {$size->breakpointWidth}px) {$size->sizeToRender}px, ";
         }
-        $last_size = $this->sizes->last();
-        $htmlSizes .= "{$last_size->getSizeToRender()}px";
+        // TODO: should always be a default size, but for right now we'll prevent an error in production if we're wrong
+        if ($default_size) {
+            $htmlSizes .= "{$default_size->sizeToRender}px";
+        } else {
+            $htmlSizes = rtrim($htmlSizes, ', ');
+        }
         return $htmlSizes;
     }
 }
