@@ -10,5 +10,11 @@
     <body class="font-body leading-normal text-gray-800">
         {{ partial:nav/index }}
         {{ template_content }}
+        <!-- Tailwind dev tools if not in prod -->
+        {{ cache }}
+            {{ if environment !== 'production' }}
+                {{ partial:dev/toolbar }}
+            {{ /if }}
+        {{ /cache }}
     </body>
 </html>

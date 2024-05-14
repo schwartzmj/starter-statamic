@@ -2,6 +2,10 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+.breakpoint:before {
+    @apply block uppercase content-['-'] sm:content-['sm'] md:content-['md'] lg:content-['lg'] xl:content-['xl'] 2xl:content-['2xl'];
+}
+
 [x-cloak] {
     display: none !important;
 }
@@ -54,9 +58,11 @@ html {
     .btn-sm {
         @apply px-3 py-2;
     }
+
     .container-gap {
         @apply gap-8 xl:gap-16;
     }
+
     /* Testing full bleed. This may work as long as the parent container has overflow-x: hidden. Can refer to what I've done in the past. Might be best to have an .article wrapper and have a separate css file for article stuff. */
     /* .full-bleed {
         width: 100vw;
